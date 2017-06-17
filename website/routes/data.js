@@ -107,7 +107,7 @@ router.get('/temperatureByCoordinates', function (req, res, next) {
 
 }).get('/emissionsByCoordinates', function (req, res, next) {
 
-	const data = fs.readFileSync('./data/odiac2016_1x1d_2015.nc');
+	const data = fs.readFileSync('./data/odiac2016_1x1d_2000.nc');
 	// reads the data from the file 
 	var reader = new NetCDFReader(data); // read the header
 	var lon = reader.getDataVariable('lon');
@@ -124,7 +124,7 @@ router.get('/temperatureByCoordinates', function (req, res, next) {
 		console.log((lonKey / 179) * 50 + "%");
 		async.eachOf(lat, function (latCoord, latKey, callback) {
 			async.eachOf(tm, function (timeValue, timeKey, callback) {
-				var year = "2015"
+				var year = "2000"
 				var dataIndex = 1 + lonKey + 360 * (latKey + 180 * timeKey); // lon + lon.dim * (lat + lat.dim * time)
 				
 				index = year + ";" + lonCoord + ";" + latCoord;
@@ -132,7 +132,7 @@ router.get('/temperatureByCoordinates', function (req, res, next) {
 					aggregate[index] = 0;
 				}
 				
-				aggregate[index] += parseInt(emissions[dataIndex] + emissions2[dataIndex]/2000);
+				aggregate[index] += parseInt(emissions[dataIndex] );
 			
 
 				callback(null);
@@ -164,7 +164,7 @@ router.get('/temperatureByCoordinates', function (req, res, next) {
 			for (var attributename in aggregate) {
 				var keyData = attributename.split(";");
 
-				if(keyData[0] == 2015) {
+				if(keyData[0] == 2000) {
 					if(typeof dataByYear[keyData[0].toString()] == 'undefined') {
 						dataByYear[keyData[0].toString()] = [];
 					}
@@ -175,7 +175,7 @@ router.get('/temperatureByCoordinates', function (req, res, next) {
 						countries[country] = offset;
 						offset++;
 					}
-					var valueToAdd = 0.003 * aggregate[attributename];
+					var valueToAdd = 0.01 * aggregate[attributename];
 					if(valueToAdd == null)
 						valueToAdd = 0;
 					

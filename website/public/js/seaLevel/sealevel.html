@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="../vendor/d3.v3.min.js" language="JavaScript"></script>
+    <script src="sealevelview.js" language="JavaScript"></script>
+    <style>
+        .liquidFillGaugeText { font-family: Helvetica; font-weight: bold; }
+    </style>
+</head>
+<body>
+<svg id="fillgauge5" width="19%" height="250" onclick="gauge5.update(NewValue());"></svg>
+<script language="JavaScript">
+    var data = [{"year": 1970, "mm": -39.9}, {"year": 1980, "mm": -16.5}, {"year": 1990, "mm": 0}, {"year": 2000, "mm": 20.5}, {"year": 2010, "mm": 65.7}];
+    var currentIndex = 0;
+    
+    var config4 = liquidFillGaugeDefaultSettings();
+    config4.circleThickness = 0.15;
+    config4.textVertPosition = 0.6;
+    config4.waveAnimateTime = 1000;
+    config4.waveHeight = 0.05;
+    config4.waveAnimate = true;
+    config4.waveRise = false;
+    config4.waveHeightScaling = false;
+    config4.waveOffset = 0.25;
+    config4.textSize = 0.75;
+    config4.waveCount = 3;
+    config4.minValue = -170;
+    config4.maxValue = 76;
+    var gauge5 = loadLiquidFillGauge("fillgauge5", data[currentIndex], config4);
+
+    function NewValue(){
+        currentIndex++;
+        return data[currentIndex % data.length].mm;
+    }
+</script>
+</body>
+</html>

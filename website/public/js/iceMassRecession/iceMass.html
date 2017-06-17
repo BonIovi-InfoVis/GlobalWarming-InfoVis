@@ -1,4 +1,42 @@
 <!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .line{
+            stroke: #a0b3c4;
+            stroke-width: 3;
+        }
+
+        .circle{
+            stroke: #851c08;
+            fill: #d61414;
+            stroke-width: 3;
+        }
+
+        .axis, .axis line, .axis path{
+            stroke: #91979b;
+            stroke-width: 3;
+        }
+
+        .axis text{
+            fill: white;
+            stroke: rgba(64,83,96,0.5);
+            stroke-width: 1;
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        .text {
+            fill: rgba(64,83,96,0.9) !important;
+            /*stroke: rgba(64,83,96,0.5);*/
+            stroke-width: 2 !important;
+            font-size: 24px !important;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body style="background-color: #19354c">
+
 <svg width="960" height="500"></svg>
 <script src="../vendor/d3.v4.min.js"></script>
 <script>
@@ -9,7 +47,20 @@ var svg = d3.select("svg"),
     height = +svg.attr("height") - margin.top - margin.bottom,
     g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-var year = d3.timeFormat("%Y");
+//var year = d3.timeFormat("%Y");
+
+function leapYear(year) {
+    return ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
+};
+
+function convertDecimalDate(decimalDate) {
+    var year = parseInt(decimalDate);
+    var reminder = decimalDate - year;
+    var daysPerYear = leapYear(year) ? 366 : 365;
+    var miliseconds = reminder * daysPerYear * 24 * 60 * 60 * 1000;
+    var yearDate = new Date(year, 0, 1);
+    return new Date(yearDate.getTime() + miliseconds);
+}
 
 var x = d3.scaleTime()
     .rangeRound([0, width]);
@@ -22,34 +73,45 @@ var area = d3.area()
     .y1(function(d) { return y(d.mass); });
 
 d3.tsv("greenland_mass_200204_201608.tsv", function(d) {
-  d.date = year(d.date);
+  d.date = convertDecimalDate(d.date);
   d.mass = +d.mass;
   return d;
 }, function(error, data) {
   if (error) throw error;
 
   x.domain(d3.extent(data, function(d) { return d.date; }));
-  y.domain([0, d3.max(data, function(d) { return d.mass; })]);
-  area.y0(y(0));
+  y.domain([d3.min(data, function(d) { return d.mass; }), d3.max(data, function(d) { return d.mass; })]);
+  area.y0(height);
 
   g.append("path")
       .datum(data)
-      .attr("fill", "steelblue")
+      .attr("class", "line")
+      .attr("fill", "#dae2e9")
       .attr("d", area);
 
   g.append("g")
       .attr("transform", "translate(0," + height + ")")
-      .call(d3.axisBottom(x));
+      .call(d3.axisBottom(x))
+      .attr("class", "axis")
+      .append("circle")
+        .attr("cx", width)
+        .attr("cy", 0)
+        .attr("r", 10)
+        .attr("class", "circle");
 
   g.append("g")
       .call(d3.axisLeft(y))
-    .append("text")
-      .attr("fill", "#000")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", "0.71em")
-      .attr("text-anchor", "end")
-      .text("Price ($)");
+      .attr("class", "axis")
+      .append("text")
+        .attr("class", "text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("x", -69)
+        .attr("dy", "0.71em")
+        .attr("text-anchor", "end")
+        .text("Gigatonnes");
 });
 
 </script>
+</body>
+</html>

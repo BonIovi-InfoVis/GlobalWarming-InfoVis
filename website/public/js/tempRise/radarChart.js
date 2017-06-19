@@ -155,100 +155,102 @@ function RadarChart(id, options) {
 	/////////Using different batches to upload data//////////
 	/////////////////////////////////////////////////////////
 
-	function updateVisualization(i){
-		d3.tsv("temperature" + i + ".tsv", function(d) {
-				d.date = convertDecimalDate(d.date);
-				d.value = +d.value;
-				return d;
-				}, function(error, data) {
-				if (error) throw error;			
 
-			/////////////////////////////////////////////////////////
-			///////////////// Draw the radar path  //////////////////
-			/////////////////////////////////////////////////////////
 
-			//The radial line function
-			var radarLine = d3.svg.line.radial()
-				.interpolate("linear")
-				.radius(function(d) { return rScale(d.value); })
-				.angle(function(d) {	return d.date.getMonth()*angleSlice; });
-					
-			if(cfg.roundStrokes) {
-				radarLine.interpolate("cardinal-open");
-			}
-	
-					var blobWrapper = g.selectAll(".radarWrapper")
-					.data(data)
-					.enter().append("g")
-					.attr("class", "radarWrapper");
+	batches = 7;
 
-				var path = blobWrapper.append("path")
-						.attr("class", "radarStroke")
-						.attr("d", radarLine(data))
-						.style("stroke-width", cfg.strokeWidth + "px")
-						.style("stroke", function(d, i) { return cfg.color(i); })
-						.style("fill", "none");
-						//.style("filter" , "url(#glow)");
+	for(i=0; i<=batches; i++){
+		setTimeout(	function(i){
+			var dataset = "temperature" + i + ".tsv";
+			d3.tsv(dataset, function(d) {
+					d.date = convertDecimalDate(d.date);
+					d.value = +d.value;
+					return d;
+					}, function(error, data) {
+					if (error) throw error;			
 
+				/////////////////////////////////////////////////////////
+				///////////////// Draw the radar path  //////////////////
+				/////////////////////////////////////////////////////////
+
+				//The radial line function
+				var radarLine = d3.svg.line.radial()
+					.interpolate("linear")
+					.radius(function(d) { return rScale(d.value); })
+					.angle(function(d) { return d.date.getMonth()*angleSlice; });
+						
+				if(cfg.roundStrokes) {
+					radarLine.interpolate("cardinal-open");
+				}
+		
+				var blobWrapper = g.selectAll(".radarWrapper")
+				.data(data)
+				.enter().append("g")
+				.attr("class", "radarWrapper");
+
+				var	path = blobWrapper.append("path")
+					.attr("class", "radarStroke")
+					.attr("d", radarLine(data))
+					.style("stroke-width", cfg.strokeWidth + "px")
+					.style("stroke", function(d, i) { return cfg.color(i); })
+					.style("fill", "none");
+					//.style("filter" , "url(#glow)");
+				
 				var pathLength= path.node().getTotalLength();
 
 					path
 						.attr("stroke-dasharray", pathLength + " " + pathLength)
 						.attr("stroke-dashoffset", pathLength)
 						.transition()
-						.duration(2000)
+						.duration(5000)
 						.ease("linear")
 						.attr("stroke-dashoffset", 0);
 
-			/////////////////////////////////////////////////////////
-			//////// Append invisible circles for tooltip ///////////
-			/////////////////////////////////////////////////////////
-			
-			//Wrapper for the invisible circles on top
-			var blobCircleWrapper = g.selectAll(".radarCircleWrapper")
-				.data(data)
-				.enter().append("g")
-				.attr("class", "radarCircleWrapper");
+				/////////////////////////////////////////////////////////
+				//////// Append invisible circles for tooltip ///////////
+				/////////////////////////////////////////////////////////
 				
-			//Append a set of invisible circles on top for the mouseover pop-up
-			blobCircleWrapper.selectAll(".radarInvisibleCircle")
-				.data(data)
-				.enter().append("circle")
-				.attr("class", "radarInvisibleCircle")
-				.attr("r", cfg.dotRadius*1.5)
-				.attr("cx", function(d){ return rScale(d.value) * Math.cos(angleSlice*d.date.getMonth() - Math.PI/2); })
-				.attr("cy", function(d){ return rScale(d.value) * Math.sin(angleSlice*d.date.getMonth() - Math.PI/2); })
-				.style("fill", "none")
-				.style("pointer-events", "all")
-				.on("mouseover", function(d) {
-					newX =  parseFloat(d3.select(this).attr('cx')) - 10;
-					newY =  parseFloat(d3.select(this).attr('cy')) - 10;
-							
-					tooltip
-						.attr('x', newX)
-						.attr('y', newY)
-						.text(Format(d.value))
-						.transition().duration(200)
-						.style('opacity', 1);
-				})
-				.on("mouseout", function(){
-					tooltip.transition().duration(200)
-						.style("opacity", 0);
-				});
-				
-			//Set up the small tooltip for when you hover over a circle
-			var tooltip = g.append("text")
-				.attr("class", "tooltip")
-				.style("opacity", 0);
-					});
-	}
-
-	batches = 1;
-
-		setTimeout(updateVisualization(0), 0);
-		setTimeout(updateVisualization(1), 20000);
-
+				//Wrapper for the invisible circles on top
+				var blobCircleWrapper = g.selectAll(".radarCircleWrapper")
+					.data(data)
+					.enter().append("g")
+					.attr("class", "radarCircleWrapper");
 					
+				//Append a set of invisible circles on top for the mouseover pop-up
+				blobCircleWrapper.selectAll(".radarInvisibleCircle")
+					.data(data)
+					.enter().append("circle")
+					.attr("class", "radarInvisibleCircle")
+					.attr("r", cfg.dotRadius*1.5)
+					.attr("cx", function(d){ return rScale(d.value) * Math.cos(angleSlice*d.date.getMonth() - Math.PI/2); })
+					.attr("cy", function(d){ return rScale(d.value) * Math.sin(angleSlice*d.date.getMonth() - Math.PI/2); })
+					.style("fill", "none")
+					.style("pointer-events", "all")
+					.on("mouseover", function(d) {
+						newX =  parseFloat(d3.select(this).attr('cx')) - 10;
+						newY =  parseFloat(d3.select(this).attr('cy')) - 10;
+								
+						tooltip
+							.attr('x', newX)
+							.attr('y', newY)
+							.text(Format(d.value))
+							.transition().duration(200)
+							.style('opacity', 1);
+					})
+					.on("mouseout", function(){
+						tooltip.transition().duration(200)
+							.style("opacity", 0);
+					});
+					
+				//Set up the small tooltip for when you hover over a circle
+				var tooltip = g.append("text")
+					.attr("class", "tooltip")
+					.style("opacity", 0);
+						});
+			},
+		5000 * i,
+		i);
+	}
 
 	/////////////////////////////////////////////////////////
 	/////////////////// Helper Function /////////////////////

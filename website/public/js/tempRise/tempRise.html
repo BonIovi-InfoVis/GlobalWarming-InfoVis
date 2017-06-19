@@ -10,6 +10,9 @@
 
 		<!-- D3.js -->
 		<script src="../vendor/d3.v3.min.js" charset="utf-8"></script>
+
+		<!-- Dataset -->
+		<script type="text/javascript" src="temperature.js"></script>
 		
 		<style>
 			body {
@@ -65,7 +68,7 @@
 			  color: color
 			};
 			//Call function to draw the Radar chart
-			RadarChart(".radarChart", radarChartOptions);
+			RadarChart(".radarChart", radarChartOptions, jsonTemp);
 		</script>
 	</body>
 </html>

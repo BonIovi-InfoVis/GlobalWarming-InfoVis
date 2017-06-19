@@ -1,5 +1,5 @@
 
-function RadarChart(id, options) {
+function RadarChart(id, options, jsonTemp) {
 	var cfg = {
 	 w: 600,				//Width of the circle
 	 h: 600,				//Height of the circle
@@ -156,7 +156,7 @@ function RadarChart(id, options) {
 	/////////////////////////////////////////////////////////
 
 
-
+/*
 	batches = 7;
 
 	for(i=0; i<=batches; i++){
@@ -168,7 +168,7 @@ function RadarChart(id, options) {
 					return d;
 					}, function(error, data) {
 					if (error) throw error;			
-
+*/
 				/////////////////////////////////////////////////////////
 				///////////////// Draw the radar path  //////////////////
 				/////////////////////////////////////////////////////////
@@ -177,20 +177,20 @@ function RadarChart(id, options) {
 				var radarLine = d3.svg.line.radial()
 					.interpolate("linear")
 					.radius(function(d) { return rScale(d.value); })
-					.angle(function(d) { return d.date.getMonth()*angleSlice; });
+					.angle(function(d) { return convertDecimalDate(d.date).getMonth()*angleSlice; });
 						
 				if(cfg.roundStrokes) {
 					radarLine.interpolate("cardinal-open");
 				}
 		
 				var blobWrapper = g.selectAll(".radarWrapper")
-				.data(data)
+				.data(jsonTemp)
 				.enter().append("g")
 				.attr("class", "radarWrapper");
 
 				var	path = blobWrapper.append("path")
 					.attr("class", "radarStroke")
-					.attr("d", radarLine(data))
+					.attr("d", radarLine(jsonTemp))
 					.style("stroke-width", cfg.strokeWidth + "px")
 					.style("stroke", function(d, i) { return cfg.color(i); })
 					.style("fill", "none");
@@ -212,18 +212,18 @@ function RadarChart(id, options) {
 				
 				//Wrapper for the invisible circles on top
 				var blobCircleWrapper = g.selectAll(".radarCircleWrapper")
-					.data(data)
+					.data(jsonTemp)
 					.enter().append("g")
 					.attr("class", "radarCircleWrapper");
 					
 				//Append a set of invisible circles on top for the mouseover pop-up
 				blobCircleWrapper.selectAll(".radarInvisibleCircle")
-					.data(data)
+					.data(jsonTemp)
 					.enter().append("circle")
 					.attr("class", "radarInvisibleCircle")
 					.attr("r", cfg.dotRadius*1.5)
-					.attr("cx", function(d){ return rScale(d.value) * Math.cos(angleSlice*d.date.getMonth() - Math.PI/2); })
-					.attr("cy", function(d){ return rScale(d.value) * Math.sin(angleSlice*d.date.getMonth() - Math.PI/2); })
+					.attr("cx", function(d){ return rScale(d.value) * Math.cos(angleSlice*convertDecimalDate(d.date).getMonth() - Math.PI/2); })
+					.attr("cy", function(d){ return rScale(d.value) * Math.sin(angleSlice*convertDecimalDate(d.date).getMonth() - Math.PI/2); })
 					.style("fill", "none")
 					.style("pointer-events", "all")
 					.on("mouseover", function(d) {
@@ -246,11 +246,11 @@ function RadarChart(id, options) {
 				var tooltip = g.append("text")
 					.attr("class", "tooltip")
 					.style("opacity", 0);
-						});
+						/* });
 			},
 		5000 * i,
 		i);
-	}
+	}*/
 
 	/////////////////////////////////////////////////////////
 	/////////////////// Helper Function /////////////////////

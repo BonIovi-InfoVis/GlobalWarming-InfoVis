@@ -11,7 +11,7 @@ function RadarChart(id, options, jsonTemp) {
 	 opacityArea: 0.35, 	//The opacity of the area of the blob
 	 dotRadius: 4, 			//The size of the colored circles of each blog
 	 opacityCircles: 0.1, 	//The opacity of the circles of each blob
-	 strokeWidth: 2, 		//The width of the stroke around each blob
+	 strokeWidth: 3, 		//The width of the stroke around each blob
 	 roundStrokes: false,	//If true the area and stroke will follow a round path (cardinal-closed)
 	 color: d3.scale.category10()	//Color function
 	};
@@ -154,11 +154,27 @@ function RadarChart(id, options, jsonTemp) {
 	//////////////DRAWING PATH - DATA DEPENDENT//////////////
 	/////////Using different batches to upload data//////////
 	/////////////////////////////////////////////////////////
+
+	var saturationScale = d3.scale.linear()
+    .domain([1880, 2017])
+    .range([0, 1]);
+
+	var hueScale = d3.scale.linear()
+    .domain([1880, 2017])
+    .range([100, 0]);
 	
 	//The radial line function
 	var radarLine = d3.svg.line.radial()
 		.radius(function(d) { return rScale(d.value); })
 		.angle(function(d) { return convertDecimalDate(d.date).getMonth()*angleSlice; });
+
+	var yearWrapper = g.selectAll(".axisWrapper").append("g")
+		.attr("class", "yearWrapper")
+		.append("text")
+		.attr('x', -20)
+		.attr('y', 0)
+		.attr('fill', '#000')
+		.attr("class", "year");
 	
 	// Drawing function
 	var drawLineForData = function(current, next) {
@@ -171,9 +187,20 @@ function RadarChart(id, options, jsonTemp) {
 			.attr("class", "radarStroke")
 			.attr("d", radarLine([current, next]))
 			.style("stroke-width", cfg.strokeWidth + "px")
-			.style("stroke", function(d, i) { return cfg.color(i); }) // change color here, based on d
-			.style("fill", "none");
+			.style("stroke", function(d){
+				var colorLine = d3.hsl("#3170d6");
+				//colorLine.s = saturationScale(convertDecimalDate(d.date).getYear() + 1900);
+				colorLine.h = hueScale(convertDecimalDate(d.date).getYear() + 1900);
+				return colorLine;})
+			.style("fill", "none")
+			.style("opacity", 0.5);
 			//.style("filter" , "url(#glow)");
+		
+
+		yearWrapper.data([current, next])
+			.enter()
+			.select("text")
+			.text(function(d) { return convertDecimalDate(d.date).getYear() + 1900 });
 			
 		//Wrapper for the invisible circles on top
 		var blobCircleWrapper = g.selectAll(".axisWrapper")
@@ -223,7 +250,7 @@ function RadarChart(id, options, jsonTemp) {
 			drawLineForData(jsonTemp[index], jsonTemp[+index+1]);
 			index++;
 		}
-	}, 300);
+	}, 50);
 	
 	
 	/////////////////////////////////////////////////////////

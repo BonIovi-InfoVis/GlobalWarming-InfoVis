@@ -1,10 +1,4 @@
-/////////////////////////////////////////////////////////
-/////////////// The Radar Chart Function ////////////////
-/////////////// Written by Nadieh Bremer ////////////////
-////////////////// VisualCinnamon.com ///////////////////
-/////////// Inspired by the code of alangrafu ///////////
-/////////////////////////////////////////////////////////
-	
+
 function RadarChart(id, options) {
 	var cfg = {
 	 w: 600,				//Width of the circle
@@ -42,25 +36,20 @@ function RadarChart(id, options) {
         return new Date(yearDate.getTime() + miliseconds);
     }
 
-    d3.tsv("temperature.tsv", function(d) {
-        d.date = convertDecimalDate(d.date);
-        d.value = +d.value;
-        return d;
-        }, function(error, data) {
-        if (error) throw error;
-	
-	//If the supplied maxValue is smaller than the actual one, replace by the max in the data
-	//var maxValue = Math.max(cfg.maxValue, d3.max(data, function(i){return d3.max(i.map(function(o){return o.value;}))}));
+	/////////////////////////////////////////////////////////
+	//////////////RADAR DRAWING - DATA INDEPENDENT///////////
+	/////////////////////////////////////////////////////////
 
-    var maxValue = d3.max(data, function(d) { return d.value; }),
-        minValue = d3.min(data, function(d) { return d.value; });
+	//In Celsius degree
+	var maxValue = 2,
+        minValue = -1;
 
     months = ["Jenuary", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "Dicember"];
 		
 	var allAxis = months,	//Names of each axis
 		total = allAxis.length,					//The number of different axes
 		radius = Math.min(cfg.w/2, cfg.h/2), 	//Radius of the outermost circle
-		Format = d3.format('%'),			 	//Percentage formatting
+		Format = d3.format('C'),			 	//Celsius degree formatting
 		angleSlice = Math.PI * 2 / total;		//The width in radians of each "slice"
 	
 	//Scale for the radius
@@ -114,7 +103,7 @@ function RadarChart(id, options) {
 		.style("fill-opacity", cfg.opacityCircles)
 		.style("filter" , "url(#glow)");
 
-	//Text indicating at what % each level is
+	//Text indicating at what Celsius degree each level is
 	axisGrid.selectAll(".axisLabel")
 	   .data(d3.range(1,(cfg.levels+1)).reverse())
 	   .enter().append("text")
@@ -156,127 +145,111 @@ function RadarChart(id, options) {
 		.attr("y", function(d, i){ return rScale(maxValue * cfg.labelFactor) * Math.sin(angleSlice*i - Math.PI/2); })
 		.text(function(d){return d})
 		.call(wrap, cfg.wrapWidth);
-
-	/////////////////////////////////////////////////////////
-	///////////// Draw the radar chart blobs ////////////////
-	/////////////////////////////////////////////////////////
-
 	
-	//The radial line function
-	var radarLine = d3.svg.line.radial()
-		.interpolate("linear")
-		.radius(function(d) { return rScale(d.value); })
-		.angle(function(d) {	return (d.date.getMonth() - 1)*angleSlice; });
-		
-	/*if(cfg.roundStrokes) {
-		radarLine.interpolate("cardinal-closed");
-	}*/
-				
-	//Create a wrapper for the blobs	
-	var blobWrapper = g.selectAll(".radarWrapper")
-		.data(data)
-		.enter().append("g")
-		.attr("class", "radarWrapper");
-/*			
-	//Append the backgrounds	
-	blobWrapper
-		.append("path")
-		.attr("class", "radarArea")
-		.attr("d", function(d) { return radarLine(d); })
-		.style("fill", function(d, i) { return cfg.color(i); })
-		.style("fill-opacity", cfg.opacityArea)
-		.on('mouseover', function (d){
-			//Dim all blobs
-			d3.selectAll(".radarArea")
-				.transition().duration(200)
-				.style("fill-opacity", 0.1); 
-			//Bring back the hovered over blob
-			d3.select(this)
-				.transition().duration(200)
-				.style("fill-opacity", 0.7);	
-		})
-		.on('mouseout', function(){
-			//Bring back all blobs
-			d3.selectAll(".radarArea")
-				.transition().duration(200)
-				.style("fill-opacity", cfg.opacityArea);
-		});
-		
-		
-	
-	//Append the circles
-	blobWrapper.selectAll(".radarCircle")
-		.data(data)
-		.enter().append("circle")
-		.attr("class", "radarCircle")
-		.attr("r", cfg.dotRadius)
-		.attr("cx", function(d){ return rScale(d.value) * Math.cos(angleSlice*(d.date.getMonth() - 1) - Math.PI/2); })
-		.attr("cy", function(d){ return rScale(d.value) * Math.sin(angleSlice*(d.date.getMonth() - 1) - Math.PI/2); })
-		.style("fill", function(d,j) { return cfg.color(j); })
-		.style("fill-opacity", 0.8); 
-
-    /*    	//Append the circles
-	blobWrapper.
-		.data(data)
-		.enter().append("circle")
-		.attr("class", "radarCircle")
-		.attr("r", cfg.dotRadius)
-		.attr("cx", function(d){ return rScale(d.value) * Math.cos(angleSlice*(d.date.getMonth() - 1) - Math.PI/2); })
-		.attr("cy", function(d){ return rScale(d.value) * Math.sin(angleSlice*(d.date.getMonth() - 1) - Math.PI/2); })
-		.style("fill", function(d,j) { return cfg.color(j); })
-		.style("fill-opacity", 0.8); */
-        	//Create the outlines	
-	blobWrapper.append("path")
-		.attr("class", "radarStroke")
-		.attr("d", radarLine(data))
-		.style("stroke-width", cfg.strokeWidth + "px")
-		.style("stroke", function(d, i) { return cfg.color(i); })
-		.style("fill", "none")
-		.style("filter" , "url(#glow)");
-
-    
+	/////////////////////////////////////////////////////////
+	////////////////////END DRAWING RADAR////////////////////
+	/////////////////////////////////////////////////////////
 
 	/////////////////////////////////////////////////////////
-	//////// Append invisible circles for tooltip ///////////
+	//////////////DRAWING PATH - DATA DEPENDENT//////////////
+	/////////Using different batches to upload data//////////
 	/////////////////////////////////////////////////////////
-	
-	//Wrapper for the invisible circles on top
-	var blobCircleWrapper = g.selectAll(".radarCircleWrapper")
-		.data(data)
-		.enter().append("g")
-		.attr("class", "radarCircleWrapper");
-		
-	//Append a set of invisible circles on top for the mouseover pop-up
-	blobCircleWrapper.selectAll(".radarInvisibleCircle")
-		.data(data)
-		.enter().append("circle")
-		.attr("class", "radarInvisibleCircle")
-		.attr("r", cfg.dotRadius*1.5)
-		.attr("cx", function(d){ return rScale(d.value) * Math.cos(angleSlice*(d.date.getMonth() - 1) - Math.PI/2); })
-		.attr("cy", function(d){ return rScale(d.value) * Math.sin(angleSlice*(d.date.getMonth() - 1) - Math.PI/2); })
-		.style("fill", "none")
-		.style("pointer-events", "all")
-		.on("mouseover", function(d) {
-			newX =  parseFloat(d3.select(this).attr('cx')) - 10;
-			newY =  parseFloat(d3.select(this).attr('cy')) - 10;
+
+	function updateVisualization(i){
+		d3.tsv("temperature" + i + ".tsv", function(d) {
+				d.date = convertDecimalDate(d.date);
+				d.value = +d.value;
+				return d;
+				}, function(error, data) {
+				if (error) throw error;			
+
+			/////////////////////////////////////////////////////////
+			///////////////// Draw the radar path  //////////////////
+			/////////////////////////////////////////////////////////
+
+			//The radial line function
+			var radarLine = d3.svg.line.radial()
+				.interpolate("linear")
+				.radius(function(d) { return rScale(d.value); })
+				.angle(function(d) {	return d.date.getMonth()*angleSlice; });
 					
-			tooltip
-				.attr('x', newX)
-				.attr('y', newY)
-				.text(Format(d.value))
-				.transition().duration(200)
-				.style('opacity', 1);
-		})
-		.on("mouseout", function(){
-			tooltip.transition().duration(200)
-				.style("opacity", 0);
-		});
-		
-	//Set up the small tooltip for when you hover over a circle
-	var tooltip = g.append("text")
-		.attr("class", "tooltip")
-		.style("opacity", 0);
+			if(cfg.roundStrokes) {
+				radarLine.interpolate("cardinal-open");
+			}
 	
+					var blobWrapper = g.selectAll(".radarWrapper")
+					.data(data)
+					.enter().append("g")
+					.attr("class", "radarWrapper");
+
+				var path = blobWrapper.append("path")
+						.attr("class", "radarStroke")
+						.attr("d", radarLine(data))
+						.style("stroke-width", cfg.strokeWidth + "px")
+						.style("stroke", function(d, i) { return cfg.color(i); })
+						.style("fill", "none");
+						//.style("filter" , "url(#glow)");
+
+				var pathLength= path.node().getTotalLength();
+
+					path
+						.attr("stroke-dasharray", pathLength + " " + pathLength)
+						.attr("stroke-dashoffset", pathLength)
+						.transition()
+						.duration(2000)
+						.ease("linear")
+						.attr("stroke-dashoffset", 0);
+
+			/////////////////////////////////////////////////////////
+			//////// Append invisible circles for tooltip ///////////
+			/////////////////////////////////////////////////////////
+			
+			//Wrapper for the invisible circles on top
+			var blobCircleWrapper = g.selectAll(".radarCircleWrapper")
+				.data(data)
+				.enter().append("g")
+				.attr("class", "radarCircleWrapper");
+				
+			//Append a set of invisible circles on top for the mouseover pop-up
+			blobCircleWrapper.selectAll(".radarInvisibleCircle")
+				.data(data)
+				.enter().append("circle")
+				.attr("class", "radarInvisibleCircle")
+				.attr("r", cfg.dotRadius*1.5)
+				.attr("cx", function(d){ return rScale(d.value) * Math.cos(angleSlice*d.date.getMonth() - Math.PI/2); })
+				.attr("cy", function(d){ return rScale(d.value) * Math.sin(angleSlice*d.date.getMonth() - Math.PI/2); })
+				.style("fill", "none")
+				.style("pointer-events", "all")
+				.on("mouseover", function(d) {
+					newX =  parseFloat(d3.select(this).attr('cx')) - 10;
+					newY =  parseFloat(d3.select(this).attr('cy')) - 10;
+							
+					tooltip
+						.attr('x', newX)
+						.attr('y', newY)
+						.text(Format(d.value))
+						.transition().duration(200)
+						.style('opacity', 1);
+				})
+				.on("mouseout", function(){
+					tooltip.transition().duration(200)
+						.style("opacity", 0);
+				});
+				
+			//Set up the small tooltip for when you hover over a circle
+			var tooltip = g.append("text")
+				.attr("class", "tooltip")
+				.style("opacity", 0);
+					});
+	}
+
+	batches = 1;
+
+		setTimeout(updateVisualization(0), 0);
+		setTimeout(updateVisualization(1), 20000);
+
+					
+
 	/////////////////////////////////////////////////////////
 	/////////////////// Helper Function /////////////////////
 	/////////////////////////////////////////////////////////
@@ -308,6 +281,4 @@ function RadarChart(id, options) {
 		}
 	  });
 	}//wrap	
-    });
-	
 }//RadarChart

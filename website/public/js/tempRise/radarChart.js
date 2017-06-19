@@ -44,7 +44,7 @@ function RadarChart(id, options, jsonTemp) {
 	var maxValue = 2,
         minValue = -1;
 
-    months = ["Jenuary", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 		
 	var allAxis = months,	//Names of each axis
 		total = allAxis.length,					//The number of different axes

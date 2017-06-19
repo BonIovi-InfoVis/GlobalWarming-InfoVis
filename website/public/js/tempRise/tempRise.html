@@ -36,13 +36,9 @@
 
 			.yearText {
 				font-size: 20px;
-				font-weight: 300;
+				font-weight: bold;
 			}
 
-			.monthText{
-				font-size: 16px;
-				font-weight: 300;
-			}
 		</style>
 	
 	</head>
@@ -58,11 +54,13 @@
 			////////////////////////////////////////////////////////////// 
 			//////////////////////// Set-Up ////////////////////////////// 
 			////////////////////////////////////////////////////////////// 
-			var margin = {top: 100, right: 100, bottom: 100, left: 100},
+			var margin = {top: 60, right: 60, bottom: 60, left: 60},
 				width = Math.min(700, window.innerWidth - 10) - margin.left - margin.right,
 				height = Math.min(width, window.innerHeight - margin.top - margin.bottom - 20);
 
-			var reduction = 200;
+			var reduction = 200,
+				width = 380,
+				height = 380;
 					
 			////////////////////////////////////////////////////////////// 
 			//////////////////// Draw the Chart ////////////////////////// 
@@ -71,8 +69,8 @@
 				.range(["#EDC951","#CC333F","#00A0B0"]);
 				
 			var radarChartOptions = {
-			  w: width - reduction,
-			  h: height - reduction,
+			  w: width,
+			  h: height,
 			  margin: margin,
 			  maxValue: 0,
 			  levels: 4,

@@ -113,7 +113,7 @@ function RadarChart(id, options, jsonTemp) {
 	   .attr("dy", "0.4em")
 	   .style("font-size", "10px")
 	   .attr("fill", "#737373")
-	   .text(function(d,i) { return Format(maxValue * d/cfg.levels); });
+	   .text(function(d,i) { return Format(((maxValue - minValue) * d/cfg.levels) - 1) + "°C anomaly"; });
 
 	/////////////////////////////////////////////////////////
 	//////////////////// Draw the axes //////////////////////

@@ -171,7 +171,7 @@ function RadarChart(id, options, jsonTemp) {
 	var yearWrapper = g.selectAll(".axisWrapper").append("g")
 		.attr("class", "yearWrapper")
 		.append("text")
-		.attr('x', -20)
+		.attr('x', -22)
 		.attr('y', 0)
 		.attr('fill', '#000')
 		.attr("class", "yearText");

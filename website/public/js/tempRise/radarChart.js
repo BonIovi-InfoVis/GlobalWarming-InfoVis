@@ -174,34 +174,32 @@ function RadarChart(id, options, jsonTemp) {
 		.attr('x', -20)
 		.attr('y', 0)
 		.attr('fill', '#000')
-		.attr("class", "year");
+		.attr("class", "yearText");
 	
 	// Drawing function
 	var drawLineForData = function(current, next) {
+		
 		var blobWrapper = g.selectAll(".axisWrapper")
 		.data([current, next])
 		.enter().append("g")
 		.attr("class", "radarWrapper");
 
 		var	path = blobWrapper.append("path")
-			.attr("class", "radarStroke")
-			.attr("d", radarLine([current, next]))
-			.style("stroke-width", cfg.strokeWidth + "px")
-			.style("stroke", function(d){
-				var colorLine = d3.hsl("#3170d6");
-				//colorLine.s = saturationScale(convertDecimalDate(d.date).getYear() + 1900);
-				colorLine.h = hueScale(convertDecimalDate(d.date).getYear() + 1900);
-				return colorLine;})
-			.style("fill", "none")
-			.style("opacity", 0.5);
-			//.style("filter" , "url(#glow)");
-		
-
-		yearWrapper.data([current, next])
-			.enter()
-			.select("text")
-			.text(function(d) { return convertDecimalDate(d.date).getYear() + 1900 });
+				.attr("class", "radarStroke")
+				.attr("d", radarLine([current, next]))
+				.style("stroke-width", cfg.strokeWidth + "px")
+				.style("stroke", function(d){
+					var colorLine = d3.hsl("#3170d6");
+					//colorLine.s = saturationScale(convertDecimalDate(d.date).getYear() + 1900);
+					colorLine.h = hueScale(convertDecimalDate(d.date).getYear() + 1900);
+					return colorLine;})
+				.style("fill", "none")
+				.style("opacity", 0.5);
+				//.style("filter" , "url(#glow)");
 			
+
+		yearWrapper.text(convertDecimalDate(current.date).getYear() + 1900 );
+				
 		//Wrapper for the invisible circles on top
 		var blobCircleWrapper = g.selectAll(".axisWrapper")
 			.data([current, next])

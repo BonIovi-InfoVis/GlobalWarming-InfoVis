@@ -37,6 +37,7 @@ function loadLiquidFillGauge(elementId, value, config) {
     if(config == null) config = liquidFillGaugeDefaultSettings();
 
     var fullData = value;
+    year = value.year
     value = value.mm;
 
     var gauge = d3.select("#" + elementId);
@@ -206,9 +207,17 @@ function loadLiquidFillGauge(elementId, value, config) {
             });
     }
 
+     var text3 = gaugeGroup.append("text")
+        .attr("class", "liquidFillGaugeText")
+        .attr("text-anchor", "middle")
+        .attr("font-size", textPixels + "px")
+        .style("fill", config.textColor)
+        .attr('transform','translate('+radius+', '+(radius * 2.4)+')')
+        .text(year);
+
     function GaugeUpdater(){
         this.update = function(value){
-            var newFinalValue = parseFloat(value).toFixed(2);
+            var newFinalValue = parseFloat(value.mm).toFixed(2);
             var textRounderUpdater = function(value){ return Math.round(value); };
             if(parseFloat(newFinalValue) != parseFloat(textRounderUpdater(newFinalValue))){
                 textRounderUpdater = function(value){ return parseFloat(value).toFixed(1); };
@@ -218,7 +227,7 @@ function loadLiquidFillGauge(elementId, value, config) {
             }
 
             var textTween = function(){
-                var i = d3.interpolate(this.textContent, parseFloat(value).toFixed(2));
+                var i = d3.interpolate(this.textContent, parseFloat(value.mm).toFixed(2));
                 return function(t) { this.textContent = textRounderUpdater(i(t)) + percentText; }
             };
 
@@ -229,7 +238,7 @@ function loadLiquidFillGauge(elementId, value, config) {
                 .duration(config.waveRiseTime)
                 .tween("text", textTween);
 
-            var fillPercent =  (Math.max(p_offset + config.minValue, Math.min(p_offset + config.maxValue, p_offset + value)))/(p_offset + config.maxValue);
+            var fillPercent =  (Math.max(p_offset + config.minValue, Math.min(p_offset + config.maxValue, p_offset + value.mm)))/(p_offset + config.maxValue);
             var waveHeight = fillCircleRadius*waveHeightScale(fillPercent*100);
             var waveRiseScale = d3.scale.linear()
                 // The clipping area size is the height of the fill circle + the wave height, so we position the clip wave
@@ -268,17 +277,13 @@ function loadLiquidFillGauge(elementId, value, config) {
             waveGroup.transition()
                 .duration(config.waveRiseTime)
                 .attr('transform','translate('+waveGroupXPosition+','+newHeight+')')
+
+            text3.text(value.year);
         }
+                
+
     }
 
-
-     var textYear = gaugeGroup.append("text")
-        .text(fullData.year)
-        .attr("class", "liquidFillGaugeText")
-        .attr("text-anchor", "middle")
-        .attr("font-size", textPixels + "px")
-        .style("fill", config.textColor)
-        .attr('transform','translate('+radius+', '+(radius * 2.4)+')');
 
     return new GaugeUpdater();
 }

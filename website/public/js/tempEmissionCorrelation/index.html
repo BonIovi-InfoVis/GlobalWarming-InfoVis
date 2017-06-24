@@ -1,19 +1,34 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <style> /* set the CSS */
+body{
+    background-color: #000;
+}
 
 .line {
   fill: none;
-  stroke: steelblue;
+  stroke: lightblue;
   stroke-width: 2px;
 }
 
 .axisSteelBlue text{
-  fill: steelblue;
+  fill: lightblue !important;
 }
 
 .axisRed text{
-  fill: red;
+  fill: lightsalmon !important;
+}
+
+.axis line{
+  stroke: lightgray;
+}
+
+.axis path{
+  stroke: lightgray;
+}
+
+.axis text{
+  fill: lightgray;
 }
 
 </style>
@@ -96,7 +111,7 @@ d3.tsv("dataset2.tsv", function(error, data) {
   svg.append("path")
       .data([data])
       .attr("class", "line")
-      .style("stroke", "red")
+      .style("stroke", "lightsalmon")
       .style("stroke-opacity", 0.3)
       .attr("d", valueline);
 
@@ -108,12 +123,13 @@ d3.tsv("dataset2.tsv", function(error, data) {
 
   // Add the X Axis
   svg.append("g")
+      .attr("class", "axis")
       .attr("transform", "translate(0," + height + ")")
       .call(d3.axisBottom(x));
 
   // Add the Y0 Axis
   svg.append("g")
-      .attr("class", "axisRed")
+      .attr("class", "axis axisRed")
       .call(d3.axisLeft(y0))
         .append("text")
             .attr("class", "text")
@@ -126,7 +142,7 @@ d3.tsv("dataset2.tsv", function(error, data) {
 
   // Add the Y1 Axis
   svg.append("g")
-      .attr("class", "axisSteelBlue")
+      .attr("class", "axis axisSteelBlue")
       .attr("transform", "translate( " + width + ", 0 )")
       .call(d3.axisRight(y1))
         .append("text")
@@ -155,7 +171,7 @@ d3.tsv("dataset.tsv", function(error, data) {
   svg.append("path")
       .data([data])
       .attr("class", "line")
-      .style("stroke", "red")
+      .style("stroke", "lightsalmon")
       .attr("d", valueline3);
 });
 

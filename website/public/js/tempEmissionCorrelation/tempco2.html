@@ -29,7 +29,20 @@ var margin = {top: 20, right: 40, bottom: 30, left: 50},
     height = 500 - margin.top - margin.bottom;
 
 // parse the date / time
-var parseTime = d3.timeParse("%Y");
+//var parseTime = d3.timeParse("%Y");
+
+function leapYear(year) {
+    return ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
+};
+
+function convertDecimalDate(decimalDate) {
+    var year = parseInt(decimalDate);
+    var reminder = decimalDate - year;
+    var daysPerYear = leapYear(year) ? 366 : 365;
+    var miliseconds = reminder * daysPerYear * 24 * 60 * 60 * 1000;
+    var yearDate = new Date(year, 0, 1);
+    return new Date(yearDate.getTime() + miliseconds);
+}
 
 // set the ranges
 var x = d3.scaleTime().range([0, width]);
@@ -40,13 +53,18 @@ var y1 = d3.scaleLinear().range([height, 0]);
 var valueline = d3.line()
     .curve(d3.curveBasis)
     .x(function(d) { return x(d.date); })
-    .y(function(d) { return y0(d.co2); });
+    .y(function(d) { return y0(d.temp); });
+
+var valueline3 = d3.line()
+    .curve(d3.curveBasis)
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y0(d.temp - 0.2); });
 
 // define the 2nd line
 var valueline2 = d3.line()
     .curve(d3.curveBasis)
     .x(function(d) { return x(d.date); })
-    .y(function(d) { return y1(d.temp); });
+    .y(function(d) { return y1(d.co2); });
 
 // append the svg obgect to the body of the page
 // appends a 'group' element to 'svg'
@@ -59,32 +77,33 @@ var svg = d3.select("body").append("svg")
           "translate(" + margin.left + "," + margin.top + ")");
 
 // Get the data
-d3.tsv("dataset.tsv", function(error, data) {
+d3.tsv("dataset2.tsv", function(error, data) {
   if (error) throw error;
 
   // format the data
   data.forEach(function(d) {
-      d.date = parseTime(d.date);
-      d.co2 = +d.co2;
+      d.date = convertDecimalDate(d.date);
       d.temp = +d.temp;
+      d.co2 = +d.co2;
   });
 
   // Scale the range of the data
   x.domain(d3.extent(data, function(d) { return d.date; }));
-  y0.domain([0, d3.max(data, function(d) {return Math.max(d.co2);})]);
-  y1.domain([0, d3.max(data, function(d) {return Math.max(d.temp); })]);
+  y0.domain([d3.min(data, function(d) {return Math.max(d.temp); }), d3.max(data, function(d) {return Math.max(d.temp); })]);
+  y1.domain([d3.min(data, function(d) {return Math.max(d.co2); }), d3.max(data, function(d) {return Math.max(d.co2);})]);
 
   // Add the valueline path.
   svg.append("path")
       .data([data])
       .attr("class", "line")
+      .style("stroke", "red")
+      .style("stroke-opacity", 0.3)
       .attr("d", valueline);
 
   // Add the valueline2 path.
   svg.append("path")
       .data([data])
       .attr("class", "line")
-      .style("stroke", "red")
       .attr("d", valueline2);
 
   // Add the X Axis
@@ -94,7 +113,7 @@ d3.tsv("dataset.tsv", function(error, data) {
 
   // Add the Y0 Axis
   svg.append("g")
-      .attr("class", "axisSteelBlue")
+      .attr("class", "axisRed")
       .call(d3.axisLeft(y0))
         .append("text")
             .attr("class", "text")
@@ -107,7 +126,7 @@ d3.tsv("dataset.tsv", function(error, data) {
 
   // Add the Y1 Axis
   svg.append("g")
-      .attr("class", "axisRed")
+      .attr("class", "axisSteelBlue")
       .attr("transform", "translate( " + width + ", 0 )")
       .call(d3.axisRight(y1))
         .append("text")
@@ -119,6 +138,25 @@ d3.tsv("dataset.tsv", function(error, data) {
             .attr("text-anchor", "end")
             .text("Emissions, CO2");
 
+});
+
+// Get the data
+d3.tsv("dataset.tsv", function(error, data) {
+  if (error) throw error;
+
+  // format the data
+  data.forEach(function(d) {
+      d.date = convertDecimalDate(d.date);
+      d.co2 = +d.co2;
+      d.temp = +d.temp;
+  });
+
+  // Add the valueline2 path.
+  svg.append("path")
+      .data([data])
+      .attr("class", "line")
+      .style("stroke", "red")
+      .attr("d", valueline3);
 });
 
 </script>

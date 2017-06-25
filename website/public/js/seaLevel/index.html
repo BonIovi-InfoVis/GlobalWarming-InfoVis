@@ -6,11 +6,15 @@
     <script src="../vendor/d3.v3.min.js" language="JavaScript"></script>
     <script src="sealevelview.js" language="JavaScript"></script>
     <style>
+        body {
+            background-color: #000;
+            text-align: center;
+        }
         .liquidFillGaugeText { font-family: Helvetica; font-weight: bold; }
     </style>
 </head>
 <body>
-<svg id="fillgauge5" width="19%" height="250" onclick="gauge5.update(NewValue());"></svg>
+<svg id="fillgauge5" width="700" height="680" onclick="gauge5.update(NewValue());"></svg>
 <script language="JavaScript">
     var data = [{"year": 1970, "mm": -39.9}, {"year": 1980, "mm": -16.5}, {"year": 1990, "mm": 0}, {"year": 2000, "mm": 20.5}, {"year": 2010, "mm": 65.7}];
     var currentIndex = 0;

@@ -1,8 +1,8 @@
 
 function RadarChart(id, options, jsonTemp) {
 	var cfg = {
-	 w: 600,				//Width of the circle
-	 h: 600,				//Height of the circle
+	 w: 700,				//Width of the circle
+	 h: 700,				//Height of the circle
 	 margin: {top: 20, right: 20, bottom: 20, left: 20}, //The margins of the SVG
 	 levels: 3,				//How many levels or inner circles should there be drawn
 	 maxValue: 0, 			//What is the value that the biggest circle will represent
@@ -112,7 +112,7 @@ function RadarChart(id, options, jsonTemp) {
 	   .attr("y", function(d){return -d*radius/cfg.levels;})
 	   .attr("dy", "0.4em")
 	   .style("font-size", "10px")
-	   .attr("fill", "#737373")
+	   .attr("fill", "#eee")
 	   .text(function(d,i) { return Format(((maxValue - minValue) * d/cfg.levels) + minValue) + "°C anomaly"; });
 
 	/////////////////////////////////////////////////////////

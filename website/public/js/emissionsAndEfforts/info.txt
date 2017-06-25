@@ -1,0 +1,3 @@
+trasparent stroke: temperature monthly average
+red stroke: temperature annual average
+blu stroke: co2 emission monthly average

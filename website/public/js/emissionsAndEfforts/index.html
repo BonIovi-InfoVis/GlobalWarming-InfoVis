@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style> /* set the CSS */
+body{
+    background-color: #000;
+}
+
+.line {
+  fill: none;
+  stroke: lightblue;
+  stroke-width: 2px;
+}
+
+.axisSteelBlue text{
+  fill: lightblue !important;
+}
+
+.axisRed text{
+  fill: lightblue !important;
+}
+
+.axis line{
+  stroke: lightgray;
+}
+
+.axis path{
+  stroke: lightgray;
+}
+
+.axis text, text{
+  fill: lightgray;
+}
+
+text{
+  font-size: 12px;
+  font-family: Arial, Helvetica, sans-serif;
+  text-shadow: 0 2px 0 #242424, 2px 0 0 #242424, -2px 0 0 #242424, 0 -2px 0 #242424;
+}
+
+.positiveCircle {
+    fill: lightgreen;
+    stroke: green;
+}
+.negativeCircle {
+    fill: lightsalmon;
+    stroke: red;
+}
+
+</style>
+<body>
+
+<!-- load the d3.js library -->    	
+<script src="../vendor/d3.v4.min.js"></script>
+<script>
+
+// set the dimensions and margins of the graph
+var margin = {top: 20, right: 40, bottom: 30, left: 50},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+// parse the date / time
+//var parseTime = d3.timeParse("%Y");
+
+function leapYear(year) {
+    return ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
+};
+
+function convertDecimalDate(decimalDate) {
+    var year = parseInt(decimalDate);
+    var reminder = decimalDate - year;
+    var daysPerYear = leapYear(year) ? 366 : 365;
+    var miliseconds = reminder * daysPerYear * 24 * 60 * 60 * 1000;
+    var yearDate = new Date(year, 0, 1);
+    return new Date(yearDate.getTime() + miliseconds);
+}
+
+// set the ranges
+var x = d3.scaleTime().range([0, width]);
+var y0 = d3.scaleLinear().range([height, 0]);
+//var y1 = d3.scaleLinear().range([height, 0]);
+
+// define the 1st line
+var valueline = d3.line()
+    .curve(d3.curveBasis)
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y0(d.temp); });
+
+var valueline3 = d3.line()
+    .curve(d3.curveBasis)
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y0(d.temp - 0.2); });
+
+// define the 2nd line
+var valueline2 = d3.line()
+    .curve(d3.curveBasis)
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y0(d.co2); });
+
+// append the svg obgect to the body of the page
+// appends a 'group' element to 'svg'
+// moves the 'group' element to the top left margin
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+// Get the data
+d3.tsv("dataset2.tsv", function(error, data) {
+  if (error) throw error;
+
+  // format the data
+  data.forEach(function(d) {
+      d.date = convertDecimalDate(d.date);
+      d.temp = +d.temp;
+      d.co2 = +d.co2;
+  });
+
+  // Scale the range of the data
+  x.domain(d3.extent(data, function(d) { return d.date; }));
+  y0.domain([d3.min(data, function(d) {return Math.max(d.co2); }), d3.max(data, function(d) {return Math.max(d.co2); })]);
+ // y1.domain([d3.min(data, function(d) {return Math.max(d.co2); }), d3.max(data, function(d) {return Math.max(d.co2);})]);
+
+  // Add the valueline path.
+  /*svg.append("path")
+      .data([data])
+      .attr("class", "line")
+      .style("stroke", "lightsalmon")
+      .style("stroke-opacity", 0.3)
+      .attr("d", valueline);
+*/
+  // Add the valueline2 path.
+  svg.append("path")
+      .data([data])
+      .attr("class", "line")
+      .attr("d", valueline2);
+
+  // Add the X Axis
+  svg.append("g")
+      .attr("class", "axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
+
+  // Add the Y0 Axis
+  svg.append("g")
+      .attr("class", "axis axisRed")
+      .call(d3.axisLeft(y0))
+        .append("text")
+            .attr("class", "text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 6)
+            .attr("x", -10)
+            .attr("dy", "0.71em")
+            .attr("text-anchor", "end")
+            .text("CO2 Emissions");
+
+  // Add the Y1 Axis
+  /*svg.append("g")
+      .attr("class", "axis axisSteelBlue")
+      .attr("transform", "translate( " + width + ", 0 )")
+      .call(d3.axisRight(y1))
+        .append("text")
+            .attr("class", "text")
+            .attr("transform", "rotate(+90)")
+            .attr("y", 6)
+            .attr("x", 90)
+            .attr("dy", "0.71em")
+            .attr("text-anchor", "end")
+            .text("Emissions, CO2");
+*/
+});
+
+// Get the data
+d3.tsv("politicalTimeLine.tsv", function(error, data) {
+  if (error) throw error;
+
+  // format the data
+  data.forEach(function(d) {
+      d.date = convertDecimalDate(d.date);
+      d.value = d.value;
+      d.pos = (d.pos.trim()=='+') ? true:false;
+  });
+
+  var index = 0.2;
+  
+
+  data.forEach(function(d) {
+      var textWrapper = svg.append("g")
+        .style("visibility", "hidden")
+        .append("text")
+        .text(d.value);
+    
+      var len = textWrapper.node().getComputedTextLength()
+
+      textWrapper.attr("x", (d.date > convertDecimalDate(1990)) ?  x(d.date) - len - 13 : x(d.date) + 13)
+        .attr("y", y0(index) + 5);
+
+      svg.append("circle")
+        .attr("cx", x(d.date))
+        .attr("cy", y0(index))
+        .attr("r", 8)
+        .attr("class", d.pos? 'positiveCircle':'negativeCircle')
+        .on("mouseover", function(){return textWrapper.style("visibility", "visible");})
+        .on("mouseout", function(){return textWrapper.style("visibility", "hidden");});
+      index += 0.04;
+  });
+      
+});
+
+</script>
+</body>

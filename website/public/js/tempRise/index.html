@@ -16,25 +16,27 @@
 		
 		<style>
 			body {
+				background-color: #000;
 				font-family: 'Open Sans', sans-serif;
 				font-size: 11px;
 				font-weight: 300;
-				fill: #242424;
+				fill: #eee;
 				text-align: center;
-				text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff, 0 -1px 0 #fff;
+				text-shadow: 0 2px 0 #242424, 2px 0 0 #242424, -2px 0 0 #242424, 0 -2px 0 #242424;
 				cursor: default;
 			}
 			
 			.legend {
 				font-family: 'Raleway', sans-serif;
-				fill: #333333;
+				fill: #eee;
 			}
 			
 			.tooltip {
-				fill: #333333;
+				fill: #eee;
 			}
 
 			.yearText {
+				fill: #eee;
 				font-size: 20px;
 				font-weight: bold;
 			}
@@ -57,10 +59,6 @@
 			var margin = {top: 60, right: 60, bottom: 60, left: 60},
 				width = Math.min(700, window.innerWidth - 10) - margin.left - margin.right,
 				height = Math.min(width, window.innerHeight - margin.top - margin.bottom - 20);
-
-			var reduction = 200,
-				width = 380,
-				height = 380;
 					
 			////////////////////////////////////////////////////////////// 
 			//////////////////// Draw the Chart ////////////////////////// 
